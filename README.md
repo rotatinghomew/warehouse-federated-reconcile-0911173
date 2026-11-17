@@ -4,13 +4,13 @@
 
 ## 数据契约
 
-当前入口处理单文件完整报送，full替换一个地区的完整事实，delta携带逐键upsert或delete。地区内sequence从1起连续，报送批次内容校验包含所有字段，缺序不会推进源头。declared_rows是传输行数，不是净新增人数。删除键在本批地区内生效，公开摘录固定当时来源序号、明细及汇总。
+报送可按传输片声明清单，也可声明只覆盖指定学校。`full` 与 `correction` 默认是闭合清册，`delta` 只描述变化；未闭合清册中的缺失不会推导为删除。补交片归回其原批次，更正批次只替代明确声明的范围。来源声明、实际落地、仓层明细与面向使用方的汇总通过 `reconcile` 对账，差异按传输、校验和业务口径分类。完整性条件满足后才发布对应口径的事实与汇总，否则把未决范围留在 `deferred`。`declared_rows` 是传输行数，不是净新增人数。
 
 ## 代码职责
 
-- `districtloads/exchange.py`：报送声明、行数和数据契约。
-- `districtloads/warehouse.py`：地区全量替换与连续增量。
-- `districtloads/reconcile.py`：来源声明、仓层与公开摘录核对。
+- `districtloads/exchange.py`：报送声明、覆盖范围、分片清单、摘要与数据契约。
+- `districtloads/warehouse.py`：分片归批、按序号防回写、范围化替换与显式删除。
+- `districtloads/reconcile.py`：来源声明、落地分片、仓层、汇总核对与受完整性约束的发布。
 - `districtloads/storage.py`：本地事务、内容摘要和查询工具。
 
 ## 安装与运行

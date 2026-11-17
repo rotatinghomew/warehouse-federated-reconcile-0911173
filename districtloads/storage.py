@@ -13,7 +13,9 @@ def fingerprint(value):
 def connect(root, schema):
     directory = Path(root)
     directory.mkdir(parents=True, exist_ok=True)
-    database = sqlite3.connect(directory / "catalog.sqlite3", timeout=10)
+    # Explicit transactions only: ``atomic`` is the sole transaction boundary.
+    database = sqlite3.connect(directory / "catalog.sqlite3", timeout=10,
+                               isolation_level=None)
     database.row_factory = sqlite3.Row
     database.execute("PRAGMA foreign_keys=ON")
     database.executescript(schema)
